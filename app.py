@@ -91,6 +91,52 @@ def generate_cyber_awareness_ad(spam_message, api_key):
     except Exception as e:
         return f"Error generating cyber awareness ad: {str(e)}"
 
+@st.cache_data(show_spinner=False)
+def cached_translation(ad_text, language_name, api_key):
+    """Cache wrapper for translate_ad to avoid duplicate API calls."""
+    return translate_ad(ad_text, language_name, api_key)
+
+def translate_ad(ad_text, target_language_name, api_key):
+    """Translate the generated ad to a target language while preserving structure."""
+    try:
+        genai.configure(api_key=api_key)
+
+        # Try a list of preferred models for translation
+        model_names = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro']
+        model = None
+
+        for model_name in model_names:
+            try:
+                model = genai.GenerativeModel(model_name)
+                test_response = model.generate_content("Hello")
+                break
+            except Exception:
+                continue
+
+        if model is None:
+            return "Error: No compatible Gemini model found for translation."
+
+        prompt = f"""
+        You are a professional translator. Translate the following content into {target_language_name}.
+        Preserve the Markdown formatting and the original structure with these sections:
+        - **Headline:**
+        - **Ad Content:**
+        - **Key Takeaway:**
+        - **Call to Action:**
+
+        Do not add new content. Keep the tone friendly and clear.
+
+        ---
+        SOURCE CONTENT:
+        {ad_text}
+        """
+
+        response = model.generate_content(prompt)
+        return response.text
+
+    except Exception as e:
+        return f"Error translating ad: {str(e)}"
+
 def load_models():
     """Load the trained model and vectorizer"""
     try:
@@ -143,6 +189,14 @@ def main():
         st.error("Failed to load models. Please ensure model.pkl and vectorizer.pkl files are present.")
         return
     
+    # Translation language options
+    available_languages = [
+        ("Hindi", "hi"), ("Marathi", "mr"), ("Bengali", "bn"), ("Telugu", "te"), ("Tamil", "ta"),
+        ("Gujarati", "gu"), ("Kannada", "kn"), ("Malayalam", "ml"), ("Punjabi", "pa"), ("Urdu", "ur"),
+        ("French", "fr"), ("Spanish", "es"), ("German", "de"), ("Arabic", "ar"), ("Chinese (Simplified)", "zh"),
+        ("Japanese", "ja")
+    ]
+
     # Main content area
     col1, col2 = st.columns([1, 1])
     
@@ -202,6 +256,34 @@ def main():
                         file_name=f"cyber_awareness_ad_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
                         mime="text/plain"
                     )
+
+                    # Translation controls
+                    st.markdown("---")
+                    st.subheader("🌐 Translate this Ad")
+                    selected_lang_names = st.multiselect(
+                        "Select languages to translate into",
+                        [name for name, _ in available_languages],
+                        default=[]
+                    )
+
+                    if selected_lang_names:
+                        with st.spinner("Translating..."):
+                            translations = {}
+                            for lang_name in selected_lang_names:
+                                translated_text = cached_translation(ad_content, lang_name, api_key)
+                                translations[lang_name] = translated_text
+
+                        # Display translations
+                        for lang_name in selected_lang_names:
+                            st.markdown(f"### {lang_name}")
+                            st.markdown(translations[lang_name])
+                            st.download_button(
+                                label=f"📥 Download {lang_name} Version",
+                                data=translations[lang_name],
+                                file_name=f"cyber_awareness_ad_{lang_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+                                mime="text/plain",
+                                key=f"download_{lang_name}"
+                            )
                 else:
                     st.info("💡 Enable Gemini API to generate cyber awareness ads for spam messages.")
                     

@@ -7,4 +7,5 @@ nltk
 wordcloud
 scikit-learn
 google-generativeai
-google
+fastapi
+uvicorn

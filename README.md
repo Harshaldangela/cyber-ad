@@ -97,6 +97,62 @@ streamlit run app.py
 
 Open the local URL provided in your browser to interact with the application.
 
+### Translating Generated Ads
+
+After a spam message is detected and an ad is generated:
+- Use the "Translate this Ad" multi-select to choose target languages
+- Translations are generated via Gemini and cached to avoid repeat costs
+- You can download each translated version as a .txt file
+
+Supported examples: Hindi, Marathi, Bengali, Telugu, Tamil, Gujarati, Kannada, Malayalam, Punjabi, Urdu, French, Spanish, German, Arabic, Chinese (Simplified), Japanese.
+
+## Backend API (FastAPI)
+
+This project includes a small API so external clients (like the Gmail extension) can generate ads and translations without exposing your API key.
+
+### Start the API
+
+```bash
+uvicorn api:app --reload --port 8000
+```
+
+### Endpoints
+
+- POST `/generate-ad`
+  - Body:
+    ```json
+    { "text": "<message to analyze>" }
+    ```
+  - Response: `{ "ad": "<generated ad markdown>" }`
+
+- POST `/translate`
+  - Body:
+    ```json
+    { "ad_text": "<generated ad markdown>", "languages": ["Hindi", "Spanish"] }
+    ```
+  - Response: `{ "translations": { "Hindi": "...", "Spanish": "..." } }`
+
+## Gmail Integration (Chrome Extension)
+
+You can inject a button into Gmail to generate cyber awareness ads for the currently opened email.
+
+### Install (Load Unpacked)
+
+1. Open Chrome → `chrome://extensions`
+2. Enable "Developer mode" (top right)
+3. Click "Load unpacked" and select the `gmail-extension/` folder
+4. Click the extension icon → "Cyber Ad Generator" → set Backend URL (e.g., `http://localhost:8000`)
+
+### Use in Gmail
+
+1. Open an email in `https://mail.google.com`
+2. A "Generate Cyber Ad" button will appear above the message body
+3. Click it to send the email text to the backend and render the ad below the message
+
+Notes:
+- The Chrome extension never sees your API key; it calls your local server
+- Ensure the API (`uvicorn`) is running and reachable from the browser
+
 ### Using the Application
 
 1. **Enter your Gemini API key** in the sidebar
