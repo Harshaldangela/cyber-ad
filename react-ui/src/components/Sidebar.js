@@ -62,12 +62,13 @@ const Sidebar = ({ isOpen }) => {
             <span>Classifier</span>
           </MenuLink>
         </MenuItem>
-        <MenuItem>
+        {/* Commented out history link */}
+        {/* <MenuItem>
           <MenuLink href="/history">
             <FaHistory />
             <span>History</span>
           </MenuLink>
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem>
           <MenuLink href="/about">
             <FaInfoCircle />

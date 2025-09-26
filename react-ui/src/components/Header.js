@@ -111,7 +111,7 @@ const Header = ({ darkMode, toggleDarkMode, apiKey, setApiKey, toggleSidebar, si
       
       <Nav>
         <NavLink href="/">Classifier</NavLink>
-        <NavLink href="/history">History</NavLink>
+        {/* <NavLink href="/history"></NavLink> */}
         <NavLink href="/about">About</NavLink>
       </Nav>
       

@@ -4,7 +4,7 @@ import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Classifier from './components/Classifier';
-import History from './components/History';
+// import History from './components/History';  // Commented out history
 import About from './components/About';
 import './App.css';
 
@@ -86,34 +86,34 @@ const ContentArea = styled.div`
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [apiKey, setApiKey] = useState('');
-  const [history, setHistory] = useState([]);
-  const [stats, setStats] = useState({ spam: 0, notSpam: 0 });
+  // const [history, setHistory] = useState([]);  // Commented out history
+  // const [stats, setStats] = useState({ spam: 0, notSpam: 0 });  // Commented out stats
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Load data from localStorage on initial render
   useEffect(() => {
     const savedApiKey = localStorage.getItem('apiKey');
-    const savedHistory = localStorage.getItem('history');
+    // const savedHistory = localStorage.getItem('history');  // Commented out history
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     const savedSidebarOpen = localStorage.getItem('sidebarOpen') === 'true';
     
     if (savedApiKey) setApiKey(savedApiKey);
-    if (savedHistory) {
-      try {
-        const parsedHistory = JSON.parse(savedHistory);
-        setHistory(parsedHistory);
-        
-        // Calculate initial stats
-        const spamCount = parsedHistory.filter(item => item.result === 'Spam').length;
-        setStats({
-          spam: spamCount,
-          notSpam: parsedHistory.length - spamCount
-        });
-      } catch (e) {
-        console.error('Error parsing history:', e);
-        setHistory([]);
-      }
-    }
+    // if (savedHistory) {  // Commented out history
+    //   try {
+    //     const parsedHistory = JSON.parse(savedHistory);
+    //     setHistory(parsedHistory);
+    //     
+    //     // Calculate initial stats
+    //     const spamCount = parsedHistory.filter(item => item.result === 'Spam').length;
+    //     setStats({
+    //       spam: spamCount,
+    //       notSpam: parsedHistory.length - spamCount
+    //     });
+    //   } catch (e) {
+    //     console.error('Error parsing history:', e);
+    //     setHistory([]);
+    //   }
+    // }
     setDarkMode(savedDarkMode);
     setSidebarOpen(savedSidebarOpen);
   }, []);
@@ -123,9 +123,9 @@ function App() {
     localStorage.setItem('apiKey', apiKey);
   }, [apiKey]);
 
-  useEffect(() => {
-    localStorage.setItem('history', JSON.stringify(history));
-  }, [history]);
+  // useEffect(() => {  // Commented out history
+  //   localStorage.setItem('history', JSON.stringify(history));
+  // }, [history]);
 
   useEffect(() => {
     localStorage.setItem('darkMode', darkMode);
@@ -143,24 +143,24 @@ function App() {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const addToHistory = (message, result, adContent = null) => {
-    const newEntry = {
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      message,
-      result,
-      adContent
-    };
-    
-    const updatedHistory = [newEntry, ...history];
-    setHistory(updatedHistory);
-    
-    // Update stats
-    setStats(prevStats => ({
-      spam: result === 'Spam' ? prevStats.spam + 1 : prevStats.spam,
-      notSpam: result === 'Not Spam' ? prevStats.notSpam + 1 : prevStats.notSpam
-    }));
-  };
+  // const addToHistory = (message, result, adContent = null) => {  // Commented out history
+  //   const newEntry = {
+  //     id: Date.now(),
+  //     timestamp: new Date().toISOString(),
+  //     message,
+  //     result,
+  //     adContent
+  //   };
+  //   
+  //   const updatedHistory = [newEntry, ...history];
+  //   setHistory(updatedHistory);
+  //   
+  //   // Update stats
+  //   setStats(prevStats => ({
+  //     spam: result === 'Spam' ? prevStats.spam + 1 : prevStats.spam,
+  //     notSpam: result === 'Not Spam' ? prevStats.notSpam + 1 : prevStats.notSpam
+  //   }));
+  // };
 
   const currentTheme = darkMode ? theme.dark : theme.light;
 
@@ -186,14 +186,14 @@ function App() {
                   element={
                     <Classifier 
                       apiKey={apiKey} 
-                      addToHistory={addToHistory}
+                      // addToHistory={addToHistory}  // Commented out history
                     />
                   } 
                 />
-                <Route 
+                {/* <Route  // Commented out history
                   path="/history" 
                   element={<History history={history} />} 
-                />
+                /> */}
                 <Route path="/about" element={<About />} />
               </Routes>
             </ContentArea>

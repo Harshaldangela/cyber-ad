@@ -210,7 +210,7 @@ const AdContent = styled.div`
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 `;
 
-const Classifier = ({ apiKey, addToHistory }) => {
+const Classifier = ({ apiKey /*, addToHistory - commented out history */ }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [result, setResult] = useState(null);
   const [confidence, setConfidence] = useState(null);
@@ -252,7 +252,7 @@ const Classifier = ({ apiKey, addToHistory }) => {
 
     try {
       // Call the improved FastAPI backend for analysis
-      const response = await fetch('http://localhost:8006/analyze', {
+      const response = await fetch('http://localhost:8007/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -282,12 +282,12 @@ const Classifier = ({ apiKey, addToHistory }) => {
         setAdContent(`Ad generation unavailable: ${data.ad_generation_error}`);
       }
       
-      // Add to history
-      addToHistory(
-        inputMessage, 
-        classificationResult === 1 ? 'Spam' : 'Not Spam', 
-        classificationResult === 1 && data.ad ? data.ad : null
-      );
+      // Add to history - commented out
+      // addToHistory(
+      //   inputMessage, 
+      //   classificationResult === 1 ? 'Spam' : 'Not Spam', 
+      //   classificationResult === 1 && data.ad ? data.ad : null
+      // );
     } catch (error) {
       console.error('Error analyzing message:', error);
       alert('Error analyzing message. Please try again.');
@@ -303,7 +303,7 @@ const Classifier = ({ apiKey, addToHistory }) => {
     
     try {
       // Call the FastAPI backend for translation
-      const response = await fetch('http://localhost:8006/translate', {
+      const response = await fetch('http://localhost:8007/translate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
