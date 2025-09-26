@@ -1,8 +1,8 @@
 // Store and retrieve settings
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.get({ cyberad_backend: 'http://localhost:8000' }, (cfg) => {
+  chrome.storage.sync.get({ cyberad_backend: 'http://localhost:8007' }, (cfg) => {
     if (!cfg.cyberad_backend) {
-      chrome.storage.sync.set({ cyberad_backend: 'http://localhost:8000' });
+      chrome.storage.sync.set({ cyberad_backend: 'http://localhost:8007' });
     }
   });
 });
@@ -11,7 +11,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg && msg.type === 'GENERATE_AD') {
     chrome.storage.sync.get(['cyberad_backend'], async (res) => {
-      const base = res.cyberad_backend || 'http://localhost:8000';
+      const base = res.cyberad_backend || 'http://localhost:8007';
       try {
         const r = await fetch(`${base}/analyze`, {
           method: 'POST',

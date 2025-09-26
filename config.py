@@ -1,7 +1,3 @@
-"""
-Configuration file for SMS Spam Classifier with Cyber Awareness
-"""
-
 import os
 from typing import Optional
 
@@ -15,7 +11,7 @@ def get_gemini_api_key() -> Optional[str]:
         return env_key
     
     # Return preconfigured API key
-    return "AIzaSyBRMGxCXdwhqZcJvHqHh3wOsJ45BgTGAv0"
+    return "AIzaSyAkVR2FisWx59ifqv2pG3r3D1jq4YgPHEA"
 
 def get_app_config():
     """

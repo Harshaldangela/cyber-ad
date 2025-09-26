@@ -4,6 +4,8 @@
 
 The SMS Spam Classifier is an advanced machine learning project that not only classifies SMS messages as spam or legitimate but also generates educational cyber awareness advertisements when spam is detected. The project uses Google's Gemini AI to create contextually relevant cybersecurity awareness content.
 
+**Note**: This is the original version. For the complete enhanced version with React UI, Gmail extension, and improved models, see [COMPLETE_PROJECT_README.md](COMPLETE_PROJECT_README.md).
+
 ## Features
 
 - **Spam Detection**: Machine learning-based SMS spam classification
@@ -34,7 +36,10 @@ The SMS Spam Classifier is an advanced machine learning project that not only cl
 
    ```bash
    python -m venv venv
-   ./venv/Scripts/Activate
+   # On Windows:
+   venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
    ```
 
 3. **Install Dependencies**
@@ -45,7 +50,7 @@ The SMS Spam Classifier is an advanced machine learning project that not only cl
 
 4. **Get Gemini API Key**
 
-   - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Visit [Google AI Studio](https://aistudio.google.com/)
    - Create a new API key
    - Keep it secure for use in the application
 
@@ -63,15 +68,9 @@ This will generate the necessary files (`vectorizer.pkl` and `model.pkl`).
 
 ### Getting Your API Key
 
-1. **Run the helper script:**
-   ```bash
-   python get_api_key.py
-   ```
-   This will open Google AI Studio in your browser.
+1. **Visit**: https://aistudio.google.com/app/apikey
 
-2. **Or manually visit:** https://makersuite.google.com/app/apikey
-
-3. **Create and copy your API key**
+2. **Create and copy your API key**
 
 ### Checking Available Models
 
@@ -216,6 +215,10 @@ If you get "404 models/gemini-pro is not found" error:
 - Ensure your API key is valid and active
 - Check that you have billing set up (if required)
 - Verify the key has the necessary permissions
+
+## Enhanced Version
+
+For a complete solution with React UI, Gmail extension, and improved models, see [COMPLETE_PROJECT_README.md](COMPLETE_PROJECT_README.md).
 
 ## Contributing
 

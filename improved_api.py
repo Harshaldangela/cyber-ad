@@ -4,12 +4,13 @@ from pydantic import BaseModel
 import google.generativeai as genai
 from config import get_gemini_api_key
 import pickle
+import re
 import string
 from nltk.corpus import stopwords
 import nltk
 from nltk.stem.porter import PorterStemmer
 
-app = FastAPI(title="Cyber Awareness Ad API")
+app = FastAPI(title="Improved Cyber Awareness Ad API")
 
 # CORS - adjust origins as needed (e.g., your extension's origin)
 app.add_middleware(
@@ -27,7 +28,6 @@ class TranslateRequest(BaseModel):
     ad_text: str
     languages: list[str]
 
-
 def get_model():
     api_key = get_gemini_api_key()
     if not api_key:
@@ -42,25 +42,56 @@ def get_model():
             continue
     raise HTTPException(status_code=500, detail="No compatible Gemini model found")
 
-
-# Load classifier and vectorizer once
+# Load improved classifier and vectorizer
 try:
-    _tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
-    _clf = pickle.load(open('model.pkl', 'rb'))
-except Exception:
-    _tfidf = None
-    _clf = None
+    _tfidf = pickle.load(open('improved_vectorizer.pkl', 'rb'))
+    _clf = pickle.load(open('improved_model.pkl', 'rb'))
+    print("Improved model loaded successfully!")
+except Exception as e:
+    print(f"Error loading improved model: {e}")
+    # Fallback to original model
+    try:
+        _tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
+        _clf = pickle.load(open('model.pkl', 'rb'))
+        print("Fallback to original model")
+    except Exception as e2:
+        print(f"Error loading original model: {e2}")
+        _tfidf = None
+        _clf = None
 
 _ps = PorterStemmer()
 
-def _transform_text(text: str) -> str:
+def advanced_text_preprocessing(text: str) -> str:
+    """Advanced text preprocessing for better feature extraction"""
+    # Convert to lowercase
     text = text.lower()
+    
+    # Remove URLs
+    text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
+    
+    # Remove email addresses
+    text = re.sub(r'\S+@\S+', '', text)
+    
+    # Remove phone numbers
+    text = re.sub(r'\d{3,}', '', text)
+    
+    # Remove extra whitespace
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    # Tokenize
     tokens = nltk.word_tokenize(text)
-    alnum = [t for t in tokens if t.isalnum()]
-    filtered = [t for t in alnum if t not in stopwords.words('english') and t not in string.punctuation]
-    stemmed = [_ps.stem(t) for t in filtered]
-    return " ".join(stemmed)
-
+    
+    # Remove punctuation and non-alphabetic tokens
+    tokens = [token for token in tokens if token.isalpha() and len(token) > 1]
+    
+    # Remove stopwords
+    stop_words = set(stopwords.words('english'))
+    tokens = [token for token in tokens if token not in stop_words]
+    
+    # Stemming
+    tokens = [_ps.stem(token) for token in tokens]
+    
+    return " ".join(tokens)
 
 def _generate_ad(model, text: str) -> str:
     prompt = f"""
@@ -80,7 +111,6 @@ def _generate_ad(model, text: str) -> str:
     resp = model.generate_content(prompt)
     return resp.text
 
-
 @app.post("/generate-ad")
 async def generate_ad(req: GenerateRequest):
     try:
@@ -91,7 +121,6 @@ async def generate_ad(req: GenerateRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.post("/translate")
 async def translate(req: TranslateRequest):
@@ -116,23 +145,33 @@ async def translate(req: TranslateRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 class AnalyzeRequest(BaseModel):
     text: str
     languages: list[str] | None = None
-
 
 @app.post("/analyze")
 async def analyze(req: AnalyzeRequest):
     if _tfidf is None or _clf is None:
         raise HTTPException(status_code=500, detail="Classifier not available on server")
     try:
-        transformed = _transform_text(req.text)
+        # Preprocess the text
+        transformed = advanced_text_preprocessing(req.text)
+        
+        # Transform and predict
         vec = _tfidf.transform([transformed])
         pred = _clf.predict(vec)[0]
+        prob = _clf.predict_proba(vec)[0]
+        
+        # Get confidence score
+        confidence = max(prob)
+        
         label = 'spam' if int(pred) == 1 else 'not_spam'
 
-        result: dict = {"classification": label}
+        result: dict = {
+            "classification": label,
+            "confidence": float(confidence)
+        }
+        
         if label == 'spam':
             model = get_model()
             ad_text = _generate_ad(model, req.text)
@@ -154,4 +193,12 @@ async def analyze(req: AnalyzeRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# Run with: uvicorn api:app --reload --port 8000
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "model_loaded": _tfidf is not None and _clf is not None
+    }
+
+# Run with: uvicorn improved_api:app --reload --port 8000

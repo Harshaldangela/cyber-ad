@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const save = document.getElementById('save');
 
   chrome.storage.sync.get(['cyberad_backend'], (res) => {
-    input.value = res && res.cyberad_backend ? res.cyberad_backend : 'http://localhost:8000';
+    input.value = res && res.cyberad_backend ? res.cyberad_backend : 'http://localhost:8007';
   });
 
   save.addEventListener('click', () => {

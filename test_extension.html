@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Extension Test</title>
+</head>
+<body>
+    <h1>Extension Test Page</h1>
+    <div id="email-content">
+        <p>Make money fast! Double your investment in 24 hours. Click here: http://invest-now.com Limited time offer.</p>
+    </div>
+    <button id="test-button">Test Extension Functionality</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('test-button').addEventListener('click', async function() {
+            const emailContent = document.getElementById('email-content').innerText;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = '<p>Sending request to backend...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8007/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: emailContent
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <h2>Analysis Result:</h2>
+                        <p><strong>Classification:</strong> ${data.classification}</p>
+                        <p><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%</p>
+                        ${data.ad ? `<h3>Cyber Awareness Ad:</h3><pre>${data.ad}</pre>` : ''}
+                        ${data.ad_generation_error ? `<p><strong>Error:</strong> ${data.ad_generation_error}</p>` : ''}
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p>Error: ${data.detail || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
