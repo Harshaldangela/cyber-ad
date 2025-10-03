@@ -1,4 +1,4 @@
-# SMS Spam Classifier with Cyber Awareness
+# GenCyberAd: SMS Spam Classifier with Cyber Awareness
 
 ## Overview
 
